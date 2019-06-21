@@ -209,16 +209,18 @@ void Gui::SettlePrices() {
 			continue;
 
 		double average_sell = 0, average_buy = 0;
-		for (int i = min((int)m_list_shift_input->value(), min(price_list_sell.value().size(), price_list_buy.value().size()));
-				i < (int)m_average_count_input->value() && 
+		unsigned int real_shift = (int)min(m_list_shift_input->value(), min(price_list_sell.value().size(), price_list_buy.value().size()));
+
+		for (unsigned i = real_shift;
+				i < (unsigned int)m_average_count_input->value() && 
 				i < price_list_buy.value().size() && 
 				i < price_list_sell.value().size(); i++) {
 
 			average_sell += price_list_buy.value()[i].s_sell_price / price_list_buy.value()[i].s_buy_price;
 			average_buy += price_list_sell.value()[1].s_buy_price / price_list_sell.value()[1].s_sell_price;
 		}
-		average_sell /= min((int)m_average_count_input->value(), price_list_sell.value().size());
-		average_buy /= min((int)m_average_count_input->value(), price_list_buy.value().size());
+		average_sell /= (int)min(m_average_count_input->value(), price_list_sell.value().size());
+		average_buy /= (int)min(m_average_count_input->value(), price_list_buy.value().size());
 
 		m_sell_items[GetCurrencyName(i, true)]->Value(average_sell);
 		m_buy_items[GetCurrencyName(i, true)]->Value(average_buy);
