@@ -45,9 +45,6 @@
     <ClInclude Include="item_data.h">
       <Filter>Main</Filter>
     </ClInclude>
-    <ClInclude Include="include\json.hpp">
-      <Filter>Include</Filter>
-    </ClInclude>
     <ClInclude Include="Scrapper.h">
       <Filter>Main</Filter>
     </ClInclude>

@@ -136,7 +136,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Gui.h" />
-    <ClInclude Include="include\json.hpp" />
     <ClInclude Include="include\tinyxml2.h" />
     <ClInclude Include="Instance.h" />
     <ClInclude Include="item_data.h" />
