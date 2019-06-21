@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Main">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="GUI">
+      <UniqueIdentifier>{18ca1c66-1f81-48dd-bab0-1ee8d5d08725}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Include">
+      <UniqueIdentifier>{09600293-5fa2-4061-a56c-2ec1afa98827}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Main.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="Instance.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="Gui.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="include\tinyxml2.cpp">
+      <Filter>Include</Filter>
+    </ClCompile>
+    <ClCompile Include="Scrapper.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="util.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Instance.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="Gui.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="include\tinyxml2.h">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="item_data.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="include\json.hpp">
+      <Filter>Include</Filter>
+    </ClInclude>
+    <ClInclude Include="Scrapper.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="struct.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="util.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
