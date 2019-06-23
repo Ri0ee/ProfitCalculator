@@ -16,6 +16,7 @@
 #include <string>
 #include <filesystem>
 #include <vector>
+#include <thread>
 
 #include "item_data.h"
 #include "Scrapper.h"

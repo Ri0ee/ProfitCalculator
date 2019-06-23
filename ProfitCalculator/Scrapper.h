@@ -6,9 +6,9 @@
 #include <algorithm>
 #include "curl/curl.h"
 
-#include "struct.h"
-#include "item_data.h"
-#include "util.h"
+#include "Struct.h"
+#include "ItemData.h"
+#include "Utils.h"
 
 class Scrapper {
 private:

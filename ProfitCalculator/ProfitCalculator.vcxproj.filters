@@ -28,7 +28,7 @@
     <ClCompile Include="Scrapper.cpp">
       <Filter>Main</Filter>
     </ClCompile>
-    <ClCompile Include="util.cpp">
+    <ClCompile Include="Utils.cpp">
       <Filter>Main</Filter>
     </ClCompile>
   </ItemGroup>
@@ -42,16 +42,16 @@
     <ClInclude Include="include\tinyxml2.h">
       <Filter>Include</Filter>
     </ClInclude>
-    <ClInclude Include="item_data.h">
-      <Filter>Main</Filter>
-    </ClInclude>
     <ClInclude Include="Scrapper.h">
       <Filter>Main</Filter>
     </ClInclude>
-    <ClInclude Include="struct.h">
+    <ClInclude Include="ItemData.h">
       <Filter>Main</Filter>
     </ClInclude>
-    <ClInclude Include="util.h">
+    <ClInclude Include="Struct.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils.h">
       <Filter>Main</Filter>
     </ClInclude>
   </ItemGroup>

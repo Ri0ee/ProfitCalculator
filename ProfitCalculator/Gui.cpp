@@ -212,7 +212,7 @@ void Gui::SettlePrices() {
 		unsigned int real_shift = (int)min(m_list_shift_input->value(), min(price_list_sell.value().size(), price_list_buy.value().size()));
 
 		for (unsigned i = real_shift;
-				i < (unsigned int)m_average_count_input->value() && 
+				i < (unsigned int)m_average_count_input->value() + real_shift && 
 				i < price_list_buy.value().size() && 
 				i < price_list_sell.value().size(); i++) {
 
@@ -224,6 +224,6 @@ void Gui::SettlePrices() {
 
 		m_sell_items[GetCurrencyName(i, true)]->Value(average_sell);
 		m_buy_items[GetCurrencyName(i, true)]->Value(average_buy);
-		m_profit[GetCurrencyName(i, true)]->Calculate(m_chaos_input->value(), average_buy, average_sell);
+		m_profit[GetCurrencyName(i, true)]->Calculate(m_chaos_input->value(), average_sell, average_buy);
 	}
 }
