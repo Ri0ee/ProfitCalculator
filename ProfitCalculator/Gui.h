@@ -71,9 +71,9 @@ private:
 
 		void Calculate(double chaos_amount_, double sell_price_, double buy_price_, bool apply_) {
 			if (apply_)
-				m_input->value((chaos_amount_ * buy_price_  / sell_price_) - chaos_amount_);
+				m_input->value((chaos_amount_ * sell_price_ / buy_price_) - chaos_amount_);
 			else
-				m_value = (chaos_amount_ * buy_price_ / sell_price_) - chaos_amount_;
+				m_value = (chaos_amount_ * sell_price_ / buy_price_) - chaos_amount_;
 		}
 
 		double Value() {
