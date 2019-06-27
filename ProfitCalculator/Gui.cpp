@@ -4,7 +4,7 @@ void Gui::Initialize() {
 	int x = 10, y = 10, w = 200, h = 20;
 
 	int big_shift = x + 60;
-	int small_shift = x + 50;
+	int small_shift = x + 70;
 
 	Fl::get_system_colors();
 	fl_font(FL_HELVETICA, 16);
