@@ -1,9 +1,6 @@
 #include "Gui.h"
 
 void Gui::Initialize() {
-	//auto item_prices = m_scrapper_ptr->GetItemPrice(true, FUSING_ORB, CHAOS_ORB, 0, TEMP_SC).value();
-	//fl_alert(item_prices[0].s_seller_acc_name.c_str());
-
 	int x = 10, y = 10, w = 200, h = 20;
 
 	int big_shift = x + 60;
@@ -30,6 +27,8 @@ void Gui::Initialize() {
 
 	m_refresh_btn = new Fl_Button(small_shift + 200 + 80 + 10 - 220, y, 100, 20, "Refresh");
 	m_refresh_btn->callback(ButtonCallback, this);
+
+	m_refresher_progress = new Fl_Progress(small_shift + 200 + 80 + 10 - 110, y, 100, 20, "Progress");
 
 	y += h * 2;
 
@@ -72,7 +71,23 @@ int Gui::Run() {
 	m_window->show();
 
 	while (Fl::wait() > 0) {
+		if (m_refresher_thread_state == THREAD_STATE_FINISHED) {
+			m_refresher_thread->join();
+			m_refresher_progress->value(0);
 
+			for (unsigned i = 1; i <= CURRENCY_TYPE_COUNT; i++) {
+				m_sell_items[GetCurrencyName(i, true)]->Apply();
+				m_buy_items[GetCurrencyName(i, true)]->Apply();
+				m_profit[GetCurrencyName(i, true)]->Apply();
+			}
+
+			delete m_refresher_thread;
+			m_refresher_thread = nullptr;
+			m_refresher_thread_state = THREAD_STATE_CALM;
+		}
+
+		if (m_refresher_thread_state == THREAD_STATE_WORKING)
+			m_refresher_progress->value((float)m_refresher_thread_progress);
 	}
 
 	return 0;
@@ -80,22 +95,21 @@ int Gui::Run() {
 
 void Gui::Check(Fl_Widget* w) {
 	if (m_chaos_input->changed()) {
-		for (auto& it : m_profit) {
-			it.second->Calculate(m_chaos_input->value(), m_sell_items[it.first]->Value(), m_buy_items[it.first]->Value());
-		}
+		for (auto& it : m_profit)
+			it.second->Calculate(m_chaos_input->value(), m_sell_items[it.first]->Value(), m_buy_items[it.first]->Value(), true);
 
 		return;
 	}
 
 	for (auto& it : m_sell_items)
 		if (it.second->Changed()) {
-			m_profit[it.first]->Calculate(m_chaos_input->value(), it.second->Value(), m_buy_items[it.first]->Value());
+			m_profit[it.first]->Calculate(m_chaos_input->value(), it.second->Value(), m_buy_items[it.first]->Value(), true);
 			return;
 		}
 
 	for (auto& it : m_buy_items)
 		if (it.second->Changed()) {
-			m_profit[it.first]->Calculate(m_chaos_input->value(), m_sell_items[it.first]->Value(), it.second->Value());
+			m_profit[it.first]->Calculate(m_chaos_input->value(), m_sell_items[it.first]->Value(), it.second->Value(), true);
 			return;
 		}
 }
@@ -167,10 +181,10 @@ void Gui::ButtonClick(Fl_Widget* w) {
 			std::string name(temp_str_buf);
 
 			currency_element->QueryDoubleAttribute("Buy", &val);
-			m_buy_items[name]->Value(val);
+			m_buy_items[name]->Value(val, true);
 
 			currency_element->QueryDoubleAttribute("Sell", &val);
-			m_sell_items[name]->Value(val);
+			m_sell_items[name]->Value(val, true);
 
 			currency_element->QueryDoubleAttribute("Profit", &val);
 			m_profit[name]->Value(val);
@@ -187,9 +201,17 @@ void Gui::ButtonClick(Fl_Widget* w) {
 	}
 }
 
+void Gui::AdditionalItemInfo::ButtonClick(Fl_Widget* w) {
+	m_gui.ShowItemInfo(m_item_type);
+}
+
+void Gui::ShowItemInfo(const std::string& item_type_) {
+
+}
+
 void Gui::CurrencyListItem::Initialize() {
 	m_input = new Fl_Value_Input(m_x, m_y, m_w, m_h, m_name.c_str());
-	m_input->callback(m_gui_ptr->ChangeCallback, m_gui_ptr);
+	m_input->callback(m_gui->ChangeCallback, m_gui);
 }
 
 void Gui::ProfitItem::Initialize() {
@@ -198,11 +220,31 @@ void Gui::ProfitItem::Initialize() {
 	m_input->precision(2);
 }
 
+void Gui::AdditionalItemInfo::Initialize() {
+	m_button = new Fl_Button(m_x, m_y, m_w, m_h, "...");
+	m_button->callback(ButtonCallback, this);
+}
+
 void Gui::SettlePrices() {
 	if (m_average_count_input->value() < 1)
 		return;
 
-	for (int i = 1; i <= 27; i++) {
+	if (m_refresher_thread != nullptr)
+		return;
+
+	m_refresher_progress->maximum(CURRENCY_TYPE_COUNT);
+	m_refresher_progress->value(0);
+
+	m_refresher_thread = new std::thread(&Gui::Settler, this);
+}
+
+void Gui::Settler() {
+	m_refresher_thread_state = THREAD_STATE_WORKING;
+	m_refresher_thread_progress = 0;
+
+	for (int i = 1; i <= CURRENCY_TYPE_COUNT; i++) {
+		m_refresher_thread_progress++;
+
 		auto price_list_buy = m_scrapper_ptr->GetItemPrice(true, i, CHAOS_ORB, 0);
 		auto price_list_sell = m_scrapper_ptr->GetItemPrice(true, CHAOS_ORB, i, 0);
 		if (!price_list_buy.has_value() || !price_list_sell.has_value())
@@ -212,9 +254,9 @@ void Gui::SettlePrices() {
 		unsigned int real_shift = (int)min(m_list_shift_input->value(), min(price_list_sell.value().size(), price_list_buy.value().size()));
 
 		for (unsigned i = real_shift;
-				i < (unsigned int)m_average_count_input->value() + real_shift && 
-				i < price_list_buy.value().size() && 
-				i < price_list_sell.value().size(); i++) {
+			i < (unsigned int)m_average_count_input->value() + real_shift &&
+			i < price_list_buy.value().size() &&
+			i < price_list_sell.value().size(); i++) {
 
 			average_sell += price_list_buy.value()[i].s_sell_price / price_list_buy.value()[i].s_buy_price;
 			average_buy += price_list_sell.value()[1].s_buy_price / price_list_sell.value()[1].s_sell_price;
@@ -222,8 +264,10 @@ void Gui::SettlePrices() {
 		average_sell /= (int)min(m_average_count_input->value(), price_list_sell.value().size());
 		average_buy /= (int)min(m_average_count_input->value(), price_list_buy.value().size());
 
-		m_sell_items[GetCurrencyName(i, true)]->Value(average_sell);
-		m_buy_items[GetCurrencyName(i, true)]->Value(average_buy);
-		m_profit[GetCurrencyName(i, true)]->Calculate(m_chaos_input->value(), average_sell, average_buy);
+		m_sell_items[GetCurrencyName(i, true)]->Value(average_sell, false);
+		m_buy_items[GetCurrencyName(i, true)]->Value(average_buy, false);
+		m_profit[GetCurrencyName(i, true)]->Calculate(m_chaos_input->value(), average_sell, average_buy, false);
 	}
+
+	m_refresher_thread_state = THREAD_STATE_FINISHED;
 }
