@@ -10,6 +10,9 @@
 #include "FL/Fl_Group.H"
 #include "FL/Fl_Box.H"
 #include "FL/Fl_Progress.H"
+#include "FL/Fl_Browser.H"
+#include "FL/Fl_Table.H"
+#include "FL/Fl_Table_Row.H"
 
 #include "tinyxml2.h"
 
@@ -100,8 +103,8 @@ private:
 
 	class AdditionalItemInfo {
 	public:
-		AdditionalItemInfo(int x_, int y_, int w_, int h_, Gui& gui_, const std::string& currency_type_) :
-			m_x(x_), m_y(y_), m_w(w_), m_h(h_), m_gui(gui_), m_item_type(m_item_type) { Initialize(); }
+		AdditionalItemInfo(int x_, int y_, int w_, int h_, Gui* gui_, const std::string& item_type_) :
+			m_x(x_), m_y(y_), m_w(w_), m_h(h_), m_gui(gui_), m_item_type(item_type_) { Initialize(); }
 
 	private:
 		bool m_initialized = false;
@@ -113,14 +116,50 @@ private:
 		int m_x, m_y, m_w, m_h;
 		std::string m_item_type;
 
-		Gui& m_gui;
+		Gui* m_gui;
 		Fl_Button* m_button = nullptr;
+	};
+
+	class AdditionalItemInfoWindow {
+	public:
+		AdditionalItemInfoWindow(const std::string& item_type_, Gui* gui_) : 
+			m_item_type(item_type_), m_gui(gui_) { Initialize(); }
+
+	private:
+		class InfoTable : public Fl_Table_Row {
+		protected:
+			void draw_cell(TableContext context, int R = 0, int C = 0, int X = 0, int Y = 0, int W = 0, int H = 0);
+
+		public:
+			InfoTable(const ItemData& item_data_, int x, int y, int w, int h, const char *l = 0) : 
+				Fl_Table_Row(x, y, w, h, l), m_item_data(item_data_) { end(); }
+
+			~InfoTable() { }
+
+		private:
+			ItemData m_item_data;
+		};
+
+		bool m_initialized = false;
+		void Initialize();
+
+		std::string m_item_type;
+		Gui* m_gui;
+
+		Fl_Double_Window* m_window = nullptr;
+		InfoTable* m_info_table = nullptr;
 	};
 public:
 	Gui(const std::vector<std::string>& argv_, std::shared_ptr<Scrapper> scrapper_ptr_) :
 		m_argv(argv_), m_scrapper_ptr(scrapper_ptr_) { Initialize(); }
 
 	int Run();
+
+	std::optional<ItemData> GetItemData(const std::string& item_type_) {
+		if (m_item_data.empty())
+			return std::nullopt;
+		return *m_item_data[item_type_];
+	}
 
 private:
 	bool m_initialized = false;
@@ -155,9 +194,12 @@ private:
 	Fl_Box* m_buy_box = nullptr;
 	Fl_Box* m_profit_box = nullptr;
 
+	std::map<std::string, std::shared_ptr<ItemData>> m_item_data;
 	std::map<std::string, std::shared_ptr<CurrencyListItem>> m_sell_items;
 	std::map<std::string, std::shared_ptr<CurrencyListItem>> m_buy_items;
 	std::map<std::string, std::shared_ptr<ProfitItem>> m_profit;
+	std::map<std::string, std::shared_ptr<AdditionalItemInfo>> m_info;
+	std::vector<std::shared_ptr<AdditionalItemInfoWindow>> m_info_windows;
 
 	std::thread* m_refresher_thread = nullptr;
 	int m_refresher_thread_state = THREAD_STATE_CALM;
