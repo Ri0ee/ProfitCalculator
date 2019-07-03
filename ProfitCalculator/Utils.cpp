@@ -250,6 +250,132 @@ std::string GetCurrencyName(int currency_, bool short_form_)
 
             break;
         }
+		case WHITE_SEXTANT:
+		{
+			if (short_form_)
+				temp_string.append("White.sext");
+			else
+				temp_string.append("Apprentice Cartographer's Sextant");
+
+			break;
+		}
+		case YELLOW_SEXTANT:
+		{
+			if (short_form_)
+				temp_string.append("Yellow.sext");
+			else
+				temp_string.append("Journeyman Cartographer's Sextant");
+
+			break;
+		}
+		case RED_SEXTANT:
+		{
+			if (short_form_)
+				temp_string.append("Red.sext");
+			else
+				temp_string.append("Master Cartographer's Sextant");
+
+			break;
+		}
+		case XOPH_SPLINTER:
+		{
+			if (short_form_)
+				temp_string.append("Xoph.spl");
+			else
+				temp_string.append("Xoph's splinter");
+
+			break;
+		}
+		case TUL_SPLINTER:
+		{
+			if (short_form_)
+				temp_string.append("Tul.spl");
+			else
+				temp_string.append("Tul's splinter");
+
+			break;
+		}
+		case ESH_SPLINTER:
+		{
+			if (short_form_)
+				temp_string.append("Esh.spl");
+			else
+				temp_string.append("Esh's splinter");
+
+			break;
+		}
+		case UUL_SPLINTER:
+		{
+			if (short_form_)
+				temp_string.append("Uul.spl");
+			else
+				temp_string.append("Uul Netol's splinter");
+
+			break;
+		}
+		case CHAYULA_SPLINTER:
+		{
+			if (short_form_)
+				temp_string.append("Chayula.spl");
+			else
+				temp_string.append("Chayula's splinter");
+
+			break;
+		}
+		case ANNULMENT:
+		{
+			if (short_form_)
+				temp_string.append("Annulment");
+			else
+				temp_string.append("Annulment orb");
+
+			break;
+		}
+		case BINDING_ORB:
+		{
+			if (short_form_)
+				temp_string.append("Binding");
+			else
+				temp_string.append("Binding orb");
+
+			break;
+		}
+		case HORIZON_ORB:
+		{
+			if (short_form_)
+				temp_string.append("Horizon");
+			else
+				temp_string.append("Horizon orb");
+
+			break;
+		}
+		case HARBINGER_ORB:
+		{
+			if (short_form_)
+				temp_string.append("Harbinger");
+			else
+				temp_string.append("Harbinger orb");
+
+			break;
+		}
+		case ENGINEER_ORB:
+		{
+			if (short_form_)
+				temp_string.append("Engineer");
+			else
+				temp_string.append("Engineer orb");
+
+			break;
+		}
+		case ANCIENT_ORB:
+		{
+			if (short_form_)
+				temp_string.append("Ancient");
+			else
+				temp_string.append("Ancient orb");
+
+			break;
+		}
     }
 
     return temp_string;

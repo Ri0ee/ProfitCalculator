@@ -30,6 +30,20 @@
 #define ETERNAL_ORB        25
 #define PERANDUS_COIN      26
 #define SILVER_COIN        27
+#define WHITE_SEXTANT	45
+#define YELLOW_SEXTANT	46
+#define RED_SEXTANT		47
+#define XOPH_SPLINTER	52
+#define TUL_SPLINTER	53
+#define ESH_SPLINTER	54
+#define UUL_SPLINTER	55
+#define CHAYULA_SPLINTER	56
+#define ANNULMENT	513
+#define BINDING_ORB	514
+#define HORIZON_ORB	515
+#define HARBINGER_ORB	516
+#define ENGINEER_ORB	517
+#define ANCIENT_ORB		518
 
 /// FRAGMENTS
 #define SACRIFICE_DUSK     28

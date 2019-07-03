@@ -10,31 +10,30 @@ void Gui::Initialize() {
 
 	m_window = new Fl_Double_Window(0, 0, "Profitter");
 
-	m_load_btn = new Fl_Button(shift + 200 + 80 + 10 - 220, y, 100, 20, "Load data");
-	m_load_btn->callback(ButtonCallback, this);
-
-	m_save_btn = new Fl_Button(shift + 200 + 80 + 10 - 110, y, 100, 20, "Save data");
-	m_save_btn->callback(ButtonCallback, this);
-
-	m_chaos_input = new Fl_Value_Input(shift, y, 50, h, "chaos:");
+	m_chaos_input = new Fl_Value_Input(shift, y, 70, h, "chaos:");
 	m_chaos_input->callback(ChangeCallback, this);
 
-	y += h * 2;
+	m_average_count_input = new Fl_Value_Input(shift + 130, y, 70, h, "avg. cnt:");
+	m_average_count_input->value(20);
 
-	m_average_count_input = new Fl_Value_Input(shift, y, 50, h, "avg. cnt:");
-	m_average_count_input->value(1);
-
-	m_refresh_btn = new Fl_Button(shift + 200 + 80 + 10 - 220, y, 100, 20, "Refresh");
-	m_refresh_btn->callback(ButtonCallback, this);
-
-	m_refresher_progress = new Fl_Progress(shift + 200 + 80 + 10 - 110, y, 100, 20, "Progress");
-
-	y += h * 2;
-
-	m_list_shift_input = new Fl_Value_Input(shift, y, 50, h, "shift:");
+	m_list_shift_input = new Fl_Value_Input(shift + 250, y, 70, h, "shift:");
 	m_list_shift_input->value(5);
 
-	y += h * 2;
+	y += h * 1.5;
+
+	m_load_btn = new Fl_Button(shift, y, 100, 20, "Load data");
+	m_load_btn->callback(ButtonCallback, this);
+
+	m_save_btn = new Fl_Button(shift + 110, y, 100, 20, "Save data");
+	m_save_btn->callback(ButtonCallback, this);
+
+	m_refresh_btn = new Fl_Button(shift + 220, y, 100, 20, "Refresh");
+	m_refresh_btn->callback(ButtonCallback, this);
+
+	y += h * 1.5;
+
+	m_refresher_progress = new Fl_Progress(shift, y - 5, 320, 5);
+	m_refresher_progress->hide();
 
 	m_sell_box = new Fl_Box(shift, y, 80, 20, "Sell");
 	m_buy_box = new Fl_Box(shift + 100, y, 80, 20, "Buy");
@@ -62,7 +61,7 @@ void Gui::Initialize() {
 
 	y1 = y;
 	for (auto i : enabled_currency) {
-		m_info[GetCurrencyName(i, true)] = std::make_shared<AdditionalItemInfo>(shift + 290, y1, 20, h, this, GetCurrencyName(i, true));
+		m_info[GetCurrencyName(i, true)] = std::make_shared<AdditionalItemInfo>(shift + 290, y1, 30, h, this, GetCurrencyName(i, true));
 		y1 += h;
 	}
 
@@ -72,7 +71,7 @@ void Gui::Initialize() {
 	
 	y = y1;
 
-	m_window->size(shift + 200 + 80 + 10 + 30, y + 10);
+	m_window->size(shift + 200 + 80 + 10 + 40, y + 10);
 	m_window->end();
 }
 
@@ -83,6 +82,7 @@ int Gui::Run() {
 		if (m_refresher_thread_state == THREAD_STATE_FINISHED) {
 			m_refresher_thread->join();
 			m_refresher_progress->value(0);
+			m_refresher_progress->hide();
 
 			for (auto i : enabled_currency) {
 				m_sell_items[GetCurrencyName(i, true)]->Apply();
@@ -435,7 +435,7 @@ void Gui::AdditionalItemInfoWindow::Initialize() {
 
 	m_window = new Fl_Double_Window(0, 0, m_item_type.c_str());
 
-	m_info_table_buy = new InfoTable(item_data.value().buy_list, 10, 30, 500, 500, "Buy info");
+	m_info_table_buy = new InfoTable(item_data.value().buy_list, 10, 30, 500, 500, "chaos <- currency");
 	m_info_table_buy->rows(item_data.value().buy_list.size());
 	m_info_table_buy->cols(5);
 	m_info_table_buy->col_header(1);
@@ -443,7 +443,7 @@ void Gui::AdditionalItemInfoWindow::Initialize() {
 	m_info_table_buy->row_resize(4);
 	m_info_table_buy->end();
 
-	m_info_table_sell = new InfoTable(item_data.value().sell_list, 520, 30, 500, 500, "Sell info");
+	m_info_table_sell = new InfoTable(item_data.value().sell_list, 520, 30, 500, 500, "currency <- chaos");
 	m_info_table_sell->rows(item_data.value().sell_list.size());
 	m_info_table_sell->cols(5);
 	m_info_table_sell->col_header(1);
@@ -465,6 +465,7 @@ void Gui::SettlePrices() {
 
 	m_refresher_progress->maximum((float)enabled_currency.size());
 	m_refresher_progress->value(0);
+	m_refresher_progress->show();
 
 	m_refresher_thread = new std::thread(&Gui::Settler, this);
 }
