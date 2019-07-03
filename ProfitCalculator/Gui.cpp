@@ -258,7 +258,7 @@ void Gui::ButtonClick(Fl_Widget* w) {
 				m_item_data[name]->buy_list[j].s_seller_char_name = std::string(temp_str_buf);	
 
 				trade_element->QueryDoubleAttribute("Stock", &val);
-				m_item_data[name]->buy_list[j].s_stock = val;
+				m_item_data[name]->buy_list[j].s_stock = (int)val;
 
 				trade_element->QueryDoubleAttribute("BuyPrice", &val);
 				m_item_data[name]->buy_list[j].s_buy_price = val;
@@ -282,7 +282,7 @@ void Gui::ButtonClick(Fl_Widget* w) {
 				m_item_data[name]->sell_list[j].s_seller_char_name = std::string(temp_str_buf);
 
 				trade_element->QueryDoubleAttribute("Stock", &val);
-				m_item_data[name]->sell_list[j].s_stock = val;
+				m_item_data[name]->sell_list[j].s_stock = (int)val;
 
 				trade_element->QueryDoubleAttribute("BuyPrice", &val);
 				m_item_data[name]->sell_list[j].s_buy_price = val;
@@ -399,11 +399,11 @@ void Gui::AdditionalItemInfoWindow::InfoTable::draw_cell(TableContext context, i
 				break;
 
 			case 3:
-				fl_draw(std::to_string(m_item_data.buy_list[R].s_buy_price).c_str(), X, Y, W, H, FL_ALIGN_CENTER);
+				fl_draw(to_string_fixed(m_item_data.buy_list[R].s_buy_price, 2).c_str(), X, Y, W, H, FL_ALIGN_CENTER);
 				break;
 
 			case 4:
-				fl_draw(std::to_string(m_item_data.buy_list[R].s_sell_price).c_str(), X, Y, W, H, FL_ALIGN_CENTER);
+				fl_draw(to_string_fixed(m_item_data.buy_list[R].s_sell_price, 2).c_str(), X, Y, W, H, FL_ALIGN_CENTER);
 				break;
 
 			default:
