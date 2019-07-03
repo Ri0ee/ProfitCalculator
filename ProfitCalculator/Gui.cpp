@@ -43,31 +43,31 @@ void Gui::Initialize() {
 	y += h;
 
 	int y1 = y;
-	for (int i = 1; i <= 27; i++) {
+	for (auto i : enabled_currency) {
 		m_sell_items[GetCurrencyName(i, true)] = std::make_shared<CurrencyListItem>(GetCurrencyName(i, true), shift, y1, 80, h, this);
 		y1 += h;
 	}
 
 	y1 = y;
-	for (int i = 1; i <= 27; i++) {
+	for (auto i : enabled_currency) {
 		m_buy_items[GetCurrencyName(i, true)] = std::make_shared<CurrencyListItem>("", shift + 100, y1, 80, h, this);
 		y1 += h;
 	}
 
 	y1 = y;
-	for (int i = 1; i <= 27; i++) {
+	for (auto i : enabled_currency) {
 		m_profit[GetCurrencyName(i, true)] = std::make_shared<ProfitItem>(shift + 200, y1, 80, h);
 		y1 += h;
 	}
 
 	y1 = y;
-	for (int i = 1; i <= 27; i++) {
+	for (auto i : enabled_currency) {
 		m_info[GetCurrencyName(i, true)] = std::make_shared<AdditionalItemInfo>(shift + 290, y1, 20, h, this, GetCurrencyName(i, true));
 		y1 += h;
 	}
 
 	// Reserve data
-	for (int i = 1; i <= 27; i++)
+	for (auto i : enabled_currency)
 		m_item_data[GetCurrencyName(i, true)] = std::make_shared<ItemData>();
 	
 	y = y1;
@@ -84,7 +84,7 @@ int Gui::Run() {
 			m_refresher_thread->join();
 			m_refresher_progress->value(0);
 
-			for (unsigned i = 1; i <= CURRENCY_TYPE_COUNT; i++) {
+			for (auto i : enabled_currency) {
 				m_sell_items[GetCurrencyName(i, true)]->Apply();
 				m_buy_items[GetCurrencyName(i, true)]->Apply();
 				m_profit[GetCurrencyName(i, true)]->Apply();
@@ -126,21 +126,20 @@ void Gui::Check(Fl_Widget* w) {
 void Gui::ButtonClick(Fl_Widget* w) {
 	std::string caption = w->label();
 	if (caption == "Save data") {
-		tinyxml2::XMLDocument xml_out;
+		tinyxml2::XMLDocument xml;
 
-		auto declaration_element = xml_out.NewDeclaration(nullptr);
-		auto format_element = xml_out.NewComment("Currency data");
+		auto declaration_element = xml.NewDeclaration(nullptr);
+		auto format_element = xml.NewComment("Currency data");
 
-		xml_out.InsertFirstChild(declaration_element);
-		xml_out.InsertEndChild(format_element);
+		xml.InsertFirstChild(declaration_element);
+		xml.InsertEndChild(format_element);
 
-		auto data_element = xml_out.NewElement("data");
-		data_element->SetAttribute("chaos", m_chaos_input->value());
-		data_element->SetAttribute("avg.count", m_average_count_input->value());
+		auto data_element = xml.NewElement("data");
+		data_element->SetAttribute("Chaos", m_chaos_input->value());
+		data_element->SetAttribute("AverageCount", m_average_count_input->value());
 
-		for (auto& it : m_sell_items)
-		{
-			auto currency_element = xml_out.NewElement("currency");
+		for (auto& it : m_sell_items) {
+			auto currency_element = xml.NewElement("currency");
 			currency_element->SetAttribute("Name", it.first.c_str());
 			currency_element->SetAttribute("Buy", m_buy_items[it.first]->Value());
 			currency_element->SetAttribute("Sell", it.second->Value());
@@ -149,11 +148,11 @@ void Gui::ButtonClick(Fl_Widget* w) {
 			if (m_item_data.find(it.first) == m_item_data.end())
 				continue;
 
-			auto buyer_info_element = xml_out.NewElement("Buy");
+			auto buyer_info_element = xml.NewElement("Buy");
 			buyer_info_element->SetAttribute("Count", m_item_data[it.first]->buy_list.size());
 
 			for (unsigned i = 0; i < m_item_data[it.first]->buy_list.size(); i++) {
-				auto trade_element = xml_out.NewElement("trader");
+				auto trade_element = xml.NewElement("trader");
 
 				trade_element->SetAttribute("ID", i);
 				trade_element->SetAttribute("AccName", m_item_data[it.first]->buy_list[i].s_seller_acc_name.c_str());
@@ -166,11 +165,11 @@ void Gui::ButtonClick(Fl_Widget* w) {
 				buyer_info_element->InsertEndChild(trade_element);
 			}
 
-			auto seller_info_element = xml_out.NewElement("Sell");
+			auto seller_info_element = xml.NewElement("Sell");
 			seller_info_element->SetAttribute("Count", m_item_data[it.first]->sell_list.size());
 
 			for (unsigned i = 0; i < m_item_data[it.first]->sell_list.size(); i++) {
-				auto trade_element = xml_out.NewElement("trader");
+				auto trade_element = xml.NewElement("trader");
 
 				trade_element->SetAttribute("ID", i);
 				trade_element->SetAttribute("AccName", m_item_data[it.first]->sell_list[i].s_seller_acc_name.c_str());
@@ -188,12 +187,12 @@ void Gui::ButtonClick(Fl_Widget* w) {
 			data_element->InsertEndChild(currency_element);
 		}
 
-		xml_out.InsertEndChild(data_element);
+		xml.InsertEndChild(data_element);
 
 		std::filesystem::path root = m_argv[0];
 		root = root.parent_path();
 
-		xml_out.SaveFile((root.string() + "//data.xml").c_str());
+		xml.SaveFile((root.string() + "//data.xml").c_str());
 		return;
 	}
 
@@ -201,31 +200,40 @@ void Gui::ButtonClick(Fl_Widget* w) {
 		std::filesystem::path root = m_argv[0];
 		root = root.parent_path();
 
-		tinyxml2::XMLDocument xml_in;
-		if (xml_in.LoadFile((root.string() + "//data.xml").c_str()) != tinyxml2::XML_SUCCESS)
+		tinyxml2::XMLDocument xml;
+		if (xml.LoadFile((root.string() + "//data.xml").c_str()) != tinyxml2::XML_SUCCESS)
 			return;
 
-		auto declaration_element = xml_in.FirstChild()->ToDeclaration();
+		auto declaration_element = xml.FirstChild()->ToDeclaration();
 		auto comment_element = declaration_element->NextSibling()->ToComment();
-
 		auto data_element = comment_element->NextSibling()->ToElement();
 
-		double val;
-		data_element->QueryDoubleAttribute("chaos", &val);
+		// Temporary variables for quering different types of data from xml document
+		double val = 0;
+		int int_val = 0;
+		const char* temp_str_buf;
+
+		data_element->QueryDoubleAttribute("Chaos", &val);
 		m_chaos_input->value(val);
 
-		int int_val;
-		data_element->QueryIntAttribute("avg.count", &int_val);
+		data_element->QueryIntAttribute("AverageCount", &int_val);
 		m_average_count_input->value(int_val);
 
-		const char* temp_str_buf;
-		auto currency_element = data_element->FirstChildElement();
-		for (unsigned i = 0; i < m_sell_items.size(); i++)
-		{
-			if (currency_element->QueryStringAttribute("Name", &temp_str_buf) == tinyxml2::XML_NO_ATTRIBUTE)
-				continue;
+		for (auto currency_element = data_element->FirstChildElement("currency"); currency_element != NULL; 
+			currency_element = currency_element->NextSiblingElement()) {
 
+			currency_element->QueryStringAttribute("Name", &temp_str_buf);
 			std::string name(temp_str_buf);
+
+			// Check if currency is present in enabled_currency vector
+			bool flag = false;
+			for (auto i : enabled_currency) {
+				if (GetCurrencyName(i, true) == name) {
+					flag = true;
+					break;
+				}
+			}
+			if (!flag) continue;
 
 			currency_element->QueryDoubleAttribute("Buy", &val);
 			m_buy_items[name]->Value(val, true);
@@ -246,57 +254,51 @@ void Gui::ButtonClick(Fl_Widget* w) {
 			m_item_data[name]->buy_list.resize(buy_trade_element_count);
 			m_item_data[name]->sell_list.resize(sell_trade_element_count);
 
-			auto trade_element = buyer_info_element->FirstChildElement();
-			for (int j = 0; j < buy_trade_element_count; j++) {
+			for (auto trade_element = buyer_info_element->FirstChildElement("trader"); trade_element != NULL; 
+				trade_element = trade_element->NextSiblingElement()) {
+
 				int id;
 				trade_element->QueryIntAttribute("ID", &id);
 
 				trade_element->QueryStringAttribute("AccName", &temp_str_buf);
-				m_item_data[name]->buy_list[j].s_seller_acc_name = std::string(temp_str_buf);
+				m_item_data[name]->buy_list[id].s_seller_acc_name = std::string(temp_str_buf);
 
 				trade_element->QueryStringAttribute("CharName", &temp_str_buf);
-				m_item_data[name]->buy_list[j].s_seller_char_name = std::string(temp_str_buf);	
+				m_item_data[name]->buy_list[id].s_seller_char_name = std::string(temp_str_buf);
 
-				trade_element->QueryDoubleAttribute("Stock", &val);
-				m_item_data[name]->buy_list[j].s_stock = (int)val;
+				trade_element->QueryIntAttribute("Stock", &int_val);
+				m_item_data[name]->buy_list[id].s_stock = int_val;
 
 				trade_element->QueryDoubleAttribute("BuyPrice", &val);
-				m_item_data[name]->buy_list[j].s_buy_price = val;
+				m_item_data[name]->buy_list[id].s_buy_price = val;
 
 				trade_element->QueryDoubleAttribute("SellPrice", &val);
-				m_item_data[name]->buy_list[j].s_sell_price = val;
-
-				if (j < buy_trade_element_count - 1)
-					trade_element = trade_element->NextSiblingElement();
+				m_item_data[name]->buy_list[id].s_sell_price = val;
 			}
 
-			trade_element = seller_info_element->FirstChildElement();
-			for (int j = 0; j < sell_trade_element_count; j++) {
+			for (auto trade_element = seller_info_element->FirstChildElement("trader"); trade_element != NULL;
+				trade_element = trade_element->NextSiblingElement()) {
+
 				int id;
 				trade_element->QueryIntAttribute("ID", &id);
 
 				trade_element->QueryStringAttribute("AccName", &temp_str_buf);
-				m_item_data[name]->sell_list[j].s_seller_acc_name = std::string(temp_str_buf);
+				m_item_data[name]->sell_list[id].s_seller_acc_name = std::string(temp_str_buf);
 
 				trade_element->QueryStringAttribute("CharName", &temp_str_buf);
-				m_item_data[name]->sell_list[j].s_seller_char_name = std::string(temp_str_buf);
+				m_item_data[name]->sell_list[id].s_seller_char_name = std::string(temp_str_buf);
 
-				trade_element->QueryDoubleAttribute("Stock", &val);
-				m_item_data[name]->sell_list[j].s_stock = (int)val;
+				trade_element->QueryIntAttribute("Stock", &int_val);
+				m_item_data[name]->sell_list[id].s_stock = int_val;
 
 				trade_element->QueryDoubleAttribute("BuyPrice", &val);
-				m_item_data[name]->sell_list[j].s_buy_price = val;
+				m_item_data[name]->sell_list[id].s_buy_price = val;
 
 				trade_element->QueryDoubleAttribute("SellPrice", &val);
-				m_item_data[name]->sell_list[j].s_sell_price = val;
-
-				if (j < sell_trade_element_count - 1)
-					trade_element = trade_element->NextSiblingElement();
+				m_item_data[name]->sell_list[id].s_sell_price = val;
 			}
-
-			if(i < m_sell_items.size() - 1)
-				currency_element = currency_element->NextSiblingElement();
 		}
+
 		return;
 	}
 
@@ -387,23 +389,23 @@ void Gui::AdditionalItemInfoWindow::InfoTable::draw_cell(TableContext context, i
 			switch (C)
 			{
 			case 0:
-				fl_draw(m_item_data.buy_list[R].s_seller_acc_name.c_str(), X, Y, W, H, FL_ALIGN_CENTER);
+				fl_draw(m_item_data[R].s_seller_acc_name.c_str(), X, Y, W, H, FL_ALIGN_CENTER);
 				break;
 
 			case 1:
-				fl_draw(m_item_data.buy_list[R].s_seller_char_name.c_str(), X, Y, W, H, FL_ALIGN_CENTER);
+				fl_draw(m_item_data[R].s_seller_char_name.c_str(), X, Y, W, H, FL_ALIGN_CENTER);
 				break;
 
 			case 2:
-				fl_draw(std::to_string(m_item_data.buy_list[R].s_stock).c_str(), X, Y, W, H, FL_ALIGN_CENTER);
+				fl_draw(std::to_string(m_item_data[R].s_stock).c_str(), X, Y, W, H, FL_ALIGN_CENTER);
 				break;
 
 			case 3:
-				fl_draw(to_string_fixed(m_item_data.buy_list[R].s_buy_price, 2).c_str(), X, Y, W, H, FL_ALIGN_CENTER);
+				fl_draw(to_string_fixed(m_item_data[R].s_buy_price, 2).c_str(), X, Y, W, H, FL_ALIGN_CENTER);
 				break;
 
 			case 4:
-				fl_draw(to_string_fixed(m_item_data.buy_list[R].s_sell_price, 2).c_str(), X, Y, W, H, FL_ALIGN_CENTER);
+				fl_draw(to_string_fixed(m_item_data[R].s_sell_price, 2).c_str(), X, Y, W, H, FL_ALIGN_CENTER);
 				break;
 
 			default:
@@ -424,7 +426,7 @@ void Gui::AdditionalItemInfoWindow::InfoTable::draw_cell(TableContext context, i
 }
 
 void Gui::AdditionalItemInfoWindow::Initialize() {
-	int x = 10, y = 10, w = 800, h = 20;
+	int x = 10, y = 10, w = 1030, h = 20;
 	int shift = x + 70;
 
 	auto item_data = m_gui->GetItemData(m_item_type);
@@ -433,16 +435,24 @@ void Gui::AdditionalItemInfoWindow::Initialize() {
 
 	m_window = new Fl_Double_Window(0, 0, m_item_type.c_str());
 
-	m_info_table = new InfoTable(item_data.value(), 0, 0, w, 500, "Info");
-	m_info_table->rows(item_data.value().buy_list.size());
-	m_info_table->cols(5);
-	m_info_table->col_header(1);
-	m_info_table->col_resize(4);
-	m_info_table->row_resize(4);
-	m_info_table->end();
+	m_info_table_buy = new InfoTable(item_data.value().buy_list, 10, 30, 500, 500, "Buy info");
+	m_info_table_buy->rows(item_data.value().buy_list.size());
+	m_info_table_buy->cols(5);
+	m_info_table_buy->col_header(1);
+	m_info_table_buy->col_resize(4);
+	m_info_table_buy->row_resize(4);
+	m_info_table_buy->end();
+
+	m_info_table_sell = new InfoTable(item_data.value().sell_list, 520, 30, 500, 500, "Sell info");
+	m_info_table_sell->rows(item_data.value().sell_list.size());
+	m_info_table_sell->cols(5);
+	m_info_table_sell->col_header(1);
+	m_info_table_sell->col_resize(4);
+	m_info_table_sell->row_resize(4);
+	m_info_table_sell->end();
 
 	m_window->end();
-	m_window->size(w, 500);
+	m_window->size(w, 500 + 30 + 10);
 	m_window->show();
 }
 
@@ -453,7 +463,7 @@ void Gui::SettlePrices() {
 	if (m_refresher_thread != nullptr)
 		return;
 
-	m_refresher_progress->maximum(CURRENCY_TYPE_COUNT);
+	m_refresher_progress->maximum((float)enabled_currency.size());
 	m_refresher_progress->value(0);
 
 	m_refresher_thread = new std::thread(&Gui::Settler, this);
@@ -463,7 +473,7 @@ void Gui::Settler() {
 	m_refresher_thread_state = THREAD_STATE_WORKING;
 	m_refresher_thread_progress = 0;
 
-	for (int i = 1; i <= CURRENCY_TYPE_COUNT; i++) {
+	for (auto i : enabled_currency) {
 		m_refresher_thread_progress++;
 
 		auto price_list_buy = m_scrapper_ptr->GetItemPrice(true, i, CHAOS_ORB, 0);

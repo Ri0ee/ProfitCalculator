@@ -131,13 +131,13 @@ private:
 			void draw_cell(TableContext context, int R = 0, int C = 0, int X = 0, int Y = 0, int W = 0, int H = 0);
 
 		public:
-			InfoTable(const ItemData& item_data_, int x, int y, int w, int h, const char *l = 0) : 
+			InfoTable(const std::vector<Item>& item_data_, int x, int y, int w, int h, const char *l = 0) :
 				Fl_Table_Row(x, y, w, h, l), m_item_data(item_data_) { end(); }
 
 			~InfoTable() { }
 
 		private:
-			ItemData m_item_data;
+			std::vector<Item> m_item_data;
 		};
 
 		bool m_initialized = false;
@@ -147,7 +147,8 @@ private:
 		Gui* m_gui;
 
 		Fl_Double_Window* m_window = nullptr;
-		InfoTable* m_info_table = nullptr;
+		InfoTable* m_info_table_buy = nullptr;
+		InfoTable* m_info_table_sell = nullptr;
 	};
 public:
 	Gui(const std::vector<std::string>& argv_, std::shared_ptr<Scrapper> scrapper_ptr_) :
@@ -204,4 +205,11 @@ private:
 	std::thread* m_refresher_thread = nullptr;
 	int m_refresher_thread_state = THREAD_STATE_CALM;
 	int m_refresher_thread_progress = 0;
+
+	std::vector<int> enabled_currency = {
+		ALTERATION_ORB, FUSING_ORB, ALCHEMY_ORB, CHROMATIC_ORB, JEWELLER_ORB,
+		CHISEL_ORB, CHANCE_ORB, SCOURING_ORB, BLESSED_ORB, REGAL_ORB, DIVINE_ORB,
+		VAAL_ORB, REGRET_ORB, PERANDUS_COIN, SILVER_COIN, GEMCUTTER_ORB, EXALTED_ORB,
+
+	};
 };
