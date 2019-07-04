@@ -367,6 +367,10 @@ void Gui::AdditionalItemInfoWindow::InfoTable::draw_cell(TableContext context, i
 				fl_draw("Sell Price", X, Y, W, H, FL_ALIGN_CENTER);
 				break;
 
+			case 5:
+				fl_draw("Ratio", X, Y, W, H, FL_ALIGN_CENTER);
+				break;
+
 			default:
 				break;
 			}
@@ -389,11 +393,11 @@ void Gui::AdditionalItemInfoWindow::InfoTable::draw_cell(TableContext context, i
 			switch (C)
 			{
 			case 0:
-				fl_draw(m_item_data[R].s_seller_acc_name.c_str(), X, Y, W, H, FL_ALIGN_CENTER);
+				fl_draw(m_item_data[R].s_seller_acc_name.c_str(), X, Y, W, H, FL_ALIGN_LEFT);
 				break;
 
 			case 1:
-				fl_draw(m_item_data[R].s_seller_char_name.c_str(), X, Y, W, H, FL_ALIGN_CENTER);
+				fl_draw(m_item_data[R].s_seller_char_name.c_str(), X, Y, W, H, FL_ALIGN_LEFT);
 				break;
 
 			case 2:
@@ -406,6 +410,10 @@ void Gui::AdditionalItemInfoWindow::InfoTable::draw_cell(TableContext context, i
 
 			case 4:
 				fl_draw(to_string_fixed(m_item_data[R].s_sell_price, 2).c_str(), X, Y, W, H, FL_ALIGN_CENTER);
+				break;
+
+			case 5:
+				fl_draw(to_string_fixed(m_item_data[R].s_ratio, 2).c_str(), X, Y, W, H, FL_ALIGN_CENTER);
 				break;
 
 			default:
@@ -437,7 +445,7 @@ void Gui::AdditionalItemInfoWindow::Initialize() {
 
 	m_info_table_buy = new InfoTable(item_data.value().buy_list, 10, 30, 500, 500, "chaos <- currency");
 	m_info_table_buy->rows(item_data.value().buy_list.size());
-	m_info_table_buy->cols(5);
+	m_info_table_buy->cols(6);
 	m_info_table_buy->col_header(1);
 	m_info_table_buy->col_resize(4);
 	m_info_table_buy->row_resize(4);
@@ -445,7 +453,7 @@ void Gui::AdditionalItemInfoWindow::Initialize() {
 
 	m_info_table_sell = new InfoTable(item_data.value().sell_list, 520, 30, 500, 500, "currency <- chaos");
 	m_info_table_sell->rows(item_data.value().sell_list.size());
-	m_info_table_sell->cols(5);
+	m_info_table_sell->cols(6);
 	m_info_table_sell->col_header(1);
 	m_info_table_sell->col_resize(4);
 	m_info_table_sell->row_resize(4);

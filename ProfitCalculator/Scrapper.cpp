@@ -105,7 +105,7 @@ std::optional<std::vector<Item>> Scrapper::GetItemPrice(bool online_only_, int i
 			if (is_stock_present)
 				stock = data_block.substr(stock_dist + 1, data_block.find("\"", stock_dist + 1) - stock_dist - 1);
 
-			temp_item_vec.push_back({ item_type_, price_item_type_, std::stof(sellvalue), std::stof(buyvalue), std::stoi(stock), acc_name, char_name });
+			temp_item_vec.push_back({ item_type_, price_item_type_, std::stof(sellvalue), std::stof(buyvalue), std::stof(sellvalue) / std::stof(buyvalue), std::stoi(stock), acc_name, char_name });
 		}
 	}
 

@@ -9,6 +9,8 @@ struct Item {
 	double s_sell_price;
 	double s_buy_price;
 
+	double s_ratio;
+
 	int s_stock;
 
 	std::string s_seller_acc_name;
